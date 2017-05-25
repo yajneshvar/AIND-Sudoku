@@ -39,9 +39,20 @@ def naked_twins(values):
     Returns:
         the values dictionary with the naked twins eliminated from peers.
     """
-
     # Find all instances of naked twins
-    # Eliminate the naked twins as possibilities for their peers
+    for unit in unitlist:
+        # find twin in each unit
+        twin = [box for box in unit if len(values[box]) == 2 ]
+        twinVal_copy = list(map(lambda x: set(values[x]),twin))
+        naked_twins = [box for box in twin if twinVal_copy.count(set(values[box])) == 2 ]
+        for naked_box in naked_twins:
+            unit.remove(naked_box)
+        for box in unit:
+            tmp_val = values[box]
+            for naked_bx in naked_twins:
+                tmp_val = list(filter(lambda x: x not in values[naked_bx],tmp_val))
+            assign_value(values,box,reduce(lambda acc,x: acc+x,tmp_val,''))
+    return values
 
 def grid_values(grid):
     """
