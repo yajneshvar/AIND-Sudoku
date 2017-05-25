@@ -1,3 +1,4 @@
+from functools import *
 assignments = []
 
 def cross(A, B):
@@ -6,7 +7,7 @@ def cross(A, B):
 
 boxes = cross('ABCDEFGHI','123456789')
 row_units = [cross(alp,'123456789') for alp in 'ABCDEFGHI']
-column_units = [cross(col,'ABCDEFGHI') for col in '123456789']
+column_units = [cross('ABCDEFGHI',col) for col in '123456789']
 square_units = [cross(row,col) for row in ('ABC','DEF','GHI') for col in ('123','456','789')]
 diagonal_unit1 = list(map(lambda x:x[0]+x[1],zip('ABCDEFGHI','123456789')))
 diagonal_unit2 = list(map(lambda x:x[0]+x[1],zip('ABCDEFGHI','987654321')))
@@ -86,19 +87,53 @@ def eliminate(values):
                     curr_set = set(v)
                     new_set = set(values[p])
                     diff_set = new_set.difference(curr_set)
-                    values[p] = reduce(lambda x,y:x+y,diff_set,'')
+                    assign_value(values,p,reduce(lambda x,y:x+y,diff_set,''))
         else:
             continue
     return values
 
 def only_choice(values):
+    for unit in unitlist:
+        #print('Unit is ',unit)
+        for val in '123456789':
+            boxes = [box for box in unit if val in values[box]]
+            if len(boxes) == 1:
+                assign_value(values,boxes[0],val)
     return values
 
 def reduce_puzzle(values):
+    stalled = False
+    while not stalled:
+        # Check how many boxes have a determined value
+        solved_values_before = len([box for box in values.keys() if len(values[box]) == 1])
+        values = eliminate(values)
+        values = only_choice(values)
+        solved_values_after = len([box for box in values.keys() if len(values[box]) == 1])
+        stalled = solved_values_before == solved_values_after
+        if len([box for box in values.keys() if len(values[box]) == 0]):
+            return False
     return values
 
 def search(values):
-    return values
+    first_val = reduce_puzzle(values)
+    # Choose one of the unfilled squares with the fewest possibilities
+    sortKey = lambda item: len(item[1])
+    filter_by_length = lambda item: len(item[1]) > 1
+    if first_val:
+        sortedvals = sorted(first_val.items(),key=sortKey,reverse=True)
+        filteredvals = list(filter(filter_by_length,sortedvals))
+        if len(filteredvals) > 0:
+            choice = filteredvals.pop()
+            for val in choice[1]:
+                temp_val = values.copy()
+                assign_value(temp_val,choice[0],val)
+                result = search(temp_val)
+                if result:
+                    return result
+        else:
+            return first_val
+    else:
+        return False
 
 def solve(grid):
     """
@@ -109,7 +144,7 @@ def solve(grid):
     Returns:
         The dictionary representation of the final sudoku grid. False if no solution exists.
     """
-    return grid_values(grid)
+    return search(grid_values(grid))
 
 if __name__ == '__main__':
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
