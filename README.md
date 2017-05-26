@@ -3,17 +3,17 @@
 
 # Question 1 (Naked Twins)
 Q: How do we use constraint propagation to solve the naked twins problem?  
-A: *Student should provide answer here*
+A: The naked twins are 2 boxes which could host identical twin values. Since only the 2 boxes has the possibility of hosting the 2 values we can use this as a constraint. These 2 values can only belong to the naked twin hence we can remove it from the other boxes in the unit.
 
 # Question 2 (Diagonal Sudoku)
 Q: How do we use constraint propagation to solve the diagonal sudoku problem?  
-A: *Student should provide answer here*
+A: In the diagonal sudoku problem the each diagonal must have values 1 - 9. This new constraint can be used to eliminate the already solved values of boxes in the diagonal from the unsolved peers.
 
 ### Install
 
 This project requires **Python 3**.
 
-We recommend students install [Anaconda](https://www.continuum.io/downloads), a pre-packaged Python distribution that contains all of the necessary libraries and software for this project. 
+We recommend students install [Anaconda](https://www.continuum.io/downloads), a pre-packaged Python distribution that contains all of the necessary libraries and software for this project.
 Please try using the environment we provided in the Anaconda lesson of the Nanodegree.
 
 ##### Optional: Pygame
@@ -41,4 +41,3 @@ The setup is simple.  If you have not installed the client tool already, then yo
 To submit your code to the project assistant, run `udacity submit` from within the top-level directory of this project.  You will be prompted for a username and password.  If you login using google or facebook, visit [this link](https://project-assistant.udacity.com/auth_tokens/jwt_login for alternate login instructions.
 
 This process will create a zipfile in your top-level directory named sudoku-<id>.zip.  This is the file that you should submit to the Udacity reviews system.
-
