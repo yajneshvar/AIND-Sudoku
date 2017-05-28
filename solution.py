@@ -4,7 +4,7 @@ assignments = []
 def cross(A, B):
     "Cross product of elements in A and elements in B."
     return [a+b for a in A for b in B]
-
+#setting up the board
 boxes = cross('ABCDEFGHI','123456789')
 row_units = [cross(alp,'123456789') for alp in 'ABCDEFGHI']
 column_units = [cross('ABCDEFGHI',col) for col in '123456789']
@@ -39,19 +39,19 @@ def naked_twins(values):
     Returns:
         the values dictionary with the naked twins eliminated from peers.
     """
+    regular_unitlist = row_units + column_units + square_units
     # Find all instances of naked twins
-    for unit in unitlist:
+    for unit in regular_unitlist:
         # find twin in each unit
         twin = [box for box in unit if len(values[box]) == 2 ]
-        twinVal_copy = list(map(lambda x: set(values[x]),twin))
-        naked_twins = [box for box in twin if twinVal_copy.count(set(values[box])) == 2 ]
-        for naked_box in naked_twins:
-            unit.remove(naked_box)
-        for box in unit:
-            tmp_val = values[box]
-            for naked_bx in naked_twins:
-                tmp_val = list(filter(lambda x: x not in values[naked_bx],tmp_val))
-            assign_value(values,box,reduce(lambda acc,x: acc+x,tmp_val,''))
+        twinval_list = list(map(lambda x: set(values[x]),twin))
+        nakedTwinList = [box for box in twin if twinval_list.count(set(values[box])) == 2 ]
+        #remove the twin values from the unit
+        for twin_box in nakedTwinList:
+            eliminated_peers = [peer for peer in unit if peer not in nakedTwinList]
+            for peer in eliminated_peers:
+                tmp_val = list(filter(lambda x: x not in values[twin_box],values[peer]))
+                assign_value(values,peer,reduce(lambda acc,x: acc+x,tmp_val,''))
     return values
 
 def grid_values(grid):
@@ -94,18 +94,15 @@ def eliminate(values):
     for (k,v) in values.items():
         if len(v) == 1:
             for p in peers[k]:
-                if len(values[p]) > 1:
-                    curr_set = set(v)
-                    new_set = set(values[p])
-                    diff_set = new_set.difference(curr_set)
-                    assign_value(values,p,reduce(lambda x,y:x+y,diff_set,''))
+                diff_set = filter(lambda x: x != v,values[p])
+                new_val = reduce(lambda x,y:x+y,diff_set,'')
+                assign_value(values,p,new_val)
         else:
             continue
     return values
 
 def only_choice(values):
     for unit in unitlist:
-        #print('Unit is ',unit)
         for val in '123456789':
             boxes = [box for box in unit if val in values[box]]
             if len(boxes) == 1:
@@ -123,6 +120,7 @@ def reduce_puzzle(values):
         stalled = solved_values_before == solved_values_after
         if len([box for box in values.keys() if len(values[box]) == 0]):
             return False
+
     return values
 
 def search(values):
@@ -160,7 +158,6 @@ def solve(grid):
 if __name__ == '__main__':
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
     display(solve(diag_sudoku_grid))
-
     try:
         from visualize import visualize_assignments
         visualize_assignments(assignments)
